@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
-using System;
 using System.Data.SqlClient;
 
 namespace Microsoft.AspNetCore.Hosting
@@ -52,8 +52,14 @@ namespace Microsoft.AspNetCore.Hosting
         private static void InvokeSeeder<TContext>(Action<TContext, IServiceProvider> seeder, TContext context, IServiceProvider services)
             where TContext : DbContext
         {
-            context.Database.Migrate();
+            //Apply the first migration (initMigration)
+            context.GetService<IMigrator>().Migrate("20220113105324_initMigration");
+
+            //Seed the DB
             seeder(context, services);
+
+            //Apply the other migrations
+            context.Database.Migrate();
         }
     }
 }

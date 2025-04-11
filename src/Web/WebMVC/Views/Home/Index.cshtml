@@ -1,10 +1,94 @@
-﻿@model List<Catalog.Domain.Plate>
-
-@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+﻿@using WebMVC.Models
+@model HomeViewModel
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container mt-5">
+            <h2>Stored Data</h2>
+            <!-- Display message (if any) -->
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-primary">
+                    @TempData["Message"]
+                </div>
+            }
+            @{
+                ViewData["Title"] = "Available Plates";
+            }
+            <h1>@ViewData["Title"]</h1>
+            <!-- Button to trigger modal popup for adding new data -->
+            <button type="button" style="margin-bottom: 20px;" class="btn btn-primary" data-toggle="modal" data-target="#addPlateModal">Add Plate</button>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Plate</th>
+                        <th>Purchase Price (£)</th>
+                        <th>Sale Price (£)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var plate in Model.Plates)
+                    {
+                        <tr>
+                            <td>@plate.Registration</td>
+                            <td>@plate.PurchasePrice.ToString("F2")</td>
+                            <td>@plate.SalePrice.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        <div class="paging">
+            @if (Model.CurrentPage > 1)
+            {
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1 })">Previous</a>
+            }
+            @if (Model.HasNext)
+            {
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1 })">Next</a>
+            }
+        </div>
+            <!-- Modal for entering new data -->
+        <div class="modal fade" id="addPlateModal" tabindex="-1" role="dialog" aria-labelledby="addPlateModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addPlateModalLabel">Add New Plate</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <!-- Modal Body with Form -->
+                    <div class="modal-body">
+                        @using (Html.BeginForm("Create", "Home", FormMethod.Post, new { id = "createForm" }))
+                        {
+                            <div class="form-group">
+                                <label for="Registration">Registration</label>
+                                <input type="text" name="Registration" class="form-control" placeholder="Enter Registration" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="PurchasePrice">Purchase Price</label>
+                                <input type="number" step="1.00" name="PurchasePrice" class="form-control" placeholder="Enter Purchase Price" required />
+                            </div>
+                        }
+                    </div>
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <!-- The 'form' attribute associates this button with our form submission -->
+                        <button type="submit" class="btn btn-primary" form="createForm">Save Plate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Include required JS libraries for Bootstrap functionality -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    </body>
+</html>
