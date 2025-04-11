@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using RTCodingExercise.Microservices.Controllers;
-using System.Net.Http;
 using System.Threading.Tasks;
+using WebMVC.Interfaces;
 using WebMVC.Services;
 using WebMVC.UnitTests.Fakes;
 using Xunit;
@@ -17,10 +17,8 @@ namespace WebMVC.UnitTests
         public async Task CreatePlate_ValidPlate_ShouldNotError()
         {
             //Arrange
-            var httpFactoryMock = new Mock<IHttpClientFactory>();
-            httpFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(new HttpClient());
-            var plateServiceMock = new Mock<PlateService>(httpFactoryMock.Object);
+            var mockHttpClientWrapper = new Mock<IHttpClientWrapper>();
+            var plateServiceMock = new Mock<PlateService>(mockHttpClientWrapper.Object);
             plateServiceMock.Setup(x => x.CreatePlateAsync(It.IsAny<Plate>()))
                 .Returns(Task.CompletedTask);
             var fakeLogger = new FakeLogger();
@@ -45,10 +43,8 @@ namespace WebMVC.UnitTests
         public async Task CreatePlate_EmptyReg_ShouldError()
         {
             //Arrange
-            var httpFactoryMock = new Mock<IHttpClientFactory>();
-            httpFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(new HttpClient());
-            var plateServiceMock = new Mock<PlateService>(httpFactoryMock.Object);
+            var mockHttpClientWrapper = new Mock<IHttpClientWrapper>();
+            var plateServiceMock = new Mock<PlateService>(mockHttpClientWrapper.Object);
             plateServiceMock.Setup(x => x.CreatePlateAsync(It.IsAny<Plate>()))
                 .Returns(Task.CompletedTask);
             var fakeLogger = new FakeLogger();
@@ -73,10 +69,8 @@ namespace WebMVC.UnitTests
         public async Task CreatePlate_TooLongReg_ShouldError()
         {
             //Arrange
-            var httpFactoryMock = new Mock<IHttpClientFactory>();
-            httpFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(new HttpClient());
-            var plateServiceMock = new Mock<PlateService>(httpFactoryMock.Object);
+            var mockHttpClientWrapper = new Mock<IHttpClientWrapper>();
+            var plateServiceMock = new Mock<PlateService>(mockHttpClientWrapper.Object);
             plateServiceMock.Setup(x => x.CreatePlateAsync(It.IsAny<Plate>()))
                 .Returns(Task.CompletedTask);
             var fakeLogger = new FakeLogger();
@@ -101,10 +95,8 @@ namespace WebMVC.UnitTests
         public async Task CreatePlate_RegHasSymbol_ShouldError()
         {
             //Arrange
-            var httpFactoryMock = new Mock<IHttpClientFactory>();
-            httpFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(new HttpClient());
-            var plateServiceMock = new Mock<PlateService>(httpFactoryMock.Object);
+            var mockHttpClientWrapper = new Mock<IHttpClientWrapper>();
+            var plateServiceMock = new Mock<PlateService>(mockHttpClientWrapper.Object);
             plateServiceMock.Setup(x => x.CreatePlateAsync(It.IsAny<Plate>()))
                 .Returns(Task.CompletedTask);
             var fakeLogger = new FakeLogger();
@@ -129,10 +121,8 @@ namespace WebMVC.UnitTests
         public async Task CreatePlate_RegHasNoNumbers_ShouldError()
         {
             //Arrange
-            var httpFactoryMock = new Mock<IHttpClientFactory>();
-            httpFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>()))
-                .Returns(new HttpClient());
-            var plateServiceMock = new Mock<PlateService>(httpFactoryMock.Object);
+            var mockHttpClientWrapper = new Mock<IHttpClientWrapper>();
+            var plateServiceMock = new Mock<PlateService>(mockHttpClientWrapper.Object);
             plateServiceMock.Setup(x => x.CreatePlateAsync(It.IsAny<Plate>()))
                 .Returns(Task.CompletedTask);
             var fakeLogger = new FakeLogger();

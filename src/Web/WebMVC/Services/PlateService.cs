@@ -12,11 +12,11 @@ namespace WebMVC.Services
             _httpClientWrapper = httpClientWrapper;
         }
 
-        public async Task<HomeViewModel> GetPlatesAsync(int page)
+        public async Task<HomeViewModel> GetPlatesAsync(int page, string sortOrder)
         {
             try
             {
-                var response = await _httpClientWrapper.GetAsync($"plates?page={page}");
+                var response = await _httpClientWrapper.GetAsync($"plates?page={page}&sort_order={sortOrder}");
                 response.EnsureSuccessStatusCode();
 
                 var foundPlates = await response.Content.ReadFromJsonAsync<IEnumerable<Plate>>();
@@ -32,7 +32,8 @@ namespace WebMVC.Services
                 {
                     Plates = foundPlates,
                     HasNext = hasNext,
-                    CurrentPage = page
+                    CurrentPage = page,
+                    SortOrder = sortOrder
                 };
             }
             catch(Exception ex)

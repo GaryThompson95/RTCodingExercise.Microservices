@@ -1,5 +1,6 @@
 ﻿using RTCodingExercise.Microservices.Models;
 using System.Diagnostics;
+using WebMVC.Models;
 using WebMVC.Services;
 
 namespace RTCodingExercise.Microservices.Controllers
@@ -8,6 +9,7 @@ namespace RTCodingExercise.Microservices.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly PlateService _plateService;
+        private static HomeViewModel viewModel;
 
         public HomeController(ILogger<HomeController> logger, PlateService plateService)
         {
@@ -15,10 +17,27 @@ namespace RTCodingExercise.Microservices.Controllers
             _plateService = plateService;
         }
 
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, string sortOrder = "default")
         {
-            var newView = await _plateService.GetPlatesAsync(page);
-            return View(newView);
+            if (sortOrder == "continue")
+            {
+                sortOrder = viewModel.SortOrder;
+            }
+            else if(sortOrder != "default")
+            {
+                //Param sort order will act like a switch, if current desc or default set to asc
+                if (viewModel.SortOrder == "price_desc" || viewModel.SortOrder == "default")
+                {
+                    sortOrder = "price_asc";
+                }
+                else
+                {
+                    sortOrder = "price_desc";
+                }
+            }
+            
+            viewModel = await _plateService.GetPlatesAsync(page, sortOrder);
+            return View(viewModel);
         }
 
         [HttpPost]

@@ -30,7 +30,7 @@ namespace WebMVC.UnitTests
                 });
             var plateService = new PlateService(mockHttpClientWrapper.Object);
             // Act
-            var result = await plateService.GetPlatesAsync(1);
+            var result = await plateService.GetPlatesAsync(1, "default");
             // Assert
             Assert.NotNull(result);
             Assert.IsType<HomeViewModel>(result);
@@ -54,7 +54,7 @@ namespace WebMVC.UnitTests
             });
             var plateService = new PlateService(mockHttpClientWrapper.Object);
             // Act
-            var result = await plateService.GetPlatesAsync(1);
+            var result = await plateService.GetPlatesAsync(1, "default");
             // Assert
             Assert.NotNull(result);
             Assert.IsType<HomeViewModel>(result);
@@ -78,7 +78,7 @@ namespace WebMVC.UnitTests
             });
             var plateService = new PlateService(mockHttpClientWrapper.Object);
             // Act
-            var result = await plateService.GetPlatesAsync(2);
+            var result = await plateService.GetPlatesAsync(2, "default");
             // Assert
             Assert.NotNull(result);
             Assert.IsType<HomeViewModel>(result);
