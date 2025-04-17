@@ -1,4 +1,5 @@
 ﻿@using WebMVC.Models
+@using Catalog.Domain
 @model HomeViewModel
     <!DOCTYPE html>
     <html>
@@ -20,6 +21,7 @@
                 ViewData["Title"] = "Available Plates";
             }
             <h1>@ViewData["Title"]</h1>
+            <h2>Current Total Revenue: £@Model.TotalRevenue</h2>
             <!-- Button to trigger modal popup for adding new data -->
             <button type="button" style="margin-bottom: 20px;" class="btn btn-primary" data-toggle="modal" data-target="#addPlateModal">Add Plate</button>
             <button type="button" style="margin-bottom: 20px;" class="btn btn-secondary" onclick="location.href='@Url.Action("Index", new { sortOrder = "default" })'">Reset Sorting</button>
@@ -28,13 +30,15 @@
                     <tr>
                         <th>Plate</th>
                         <th>Purchase Price (£)</th>
-                    <th>
-                        @Html.ActionLink(
+                        <th>
+                            @Html.ActionLink(
                                  "Sale Price (£)",
                                  "Index",
                                  new { sortOrder = Model.SortOrder == "default" ? "price_asc" : Model.SortOrder }
-                        )
-                    </th>
+                            )
+                        </th>
+                        <th>Current Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,6 +48,23 @@
                             <td>@plate.Registration</td>
                             <td>@plate.PurchasePrice.ToString("F2")</td>
                             <td>@plate.SalePrice.ToString("F2")</td>
+                            <td>@plate.Status</td>
+                            <td>
+                            @using (Html.BeginForm("Reserve", "Home", new { id = plate.Id }, FormMethod.Post, false, new { @class = "d-inline" }))
+                            {
+                                <input type="text" name="reservedBy" placeholder="Your name"
+                                       class="form-control form-control-sm d-inline"
+                                       style="width:150px; margin-right:5px;" />
+                                <button type="submit" class="btn btn-warning btn-sm" @(plate.Status == PlateStatus.Available ? "" : "disabled")>Reserve</button>
+                            }
+                            @using (Html.BeginForm("Buy", "Home", new { id = plate.Id }, FormMethod.Post, false, new { @class = "d-inline", }))
+                            {
+                                <input type="text" name="boughtBy" placeholder="Your name"
+                                       class="form-control form-control-sm d-inline"
+                                       style="width:150px; margin-right:5px;" />
+                                <button type="submit" class="btn btn-success btn-sm" @(plate.Status == PlateStatus.Sold ? "disabled" : "")>Buy</button>
+                            }
+                        </td>
                         </tr>
                     }
                 </tbody>

@@ -1,5 +1,6 @@
-﻿using Moq;
-using Moq.Protected;
+﻿using Catalog.Domain;
+using MassTransit;
+using Moq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using WebMVC.Interfaces;
 using WebMVC.Models;
 using WebMVC.Services;
+using WebMVC.UnitTests.Fakes;
 using Xunit;
 
 namespace WebMVC.UnitTests
@@ -28,7 +30,15 @@ namespace WebMVC.UnitTests
                     StatusCode = HttpStatusCode.OK,
                     Content = new StringContent("[{\"Registration\":\"ABC1234\",\"PurchasePrice\":100}]")
                 });
-            var plateService = new PlateService(mockHttpClientWrapper.Object);
+            var reserveRequestClientMock = new Mock<IRequestClient<ReservePlateMessage>>();
+            reserveRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<ReservePlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true})));
+
+            var buyRequestClientMock = new Mock<IRequestClient<BuyPlateMessage>>();
+            buyRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<BuyPlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true })));
+
+            var plateService = new PlateService(mockHttpClientWrapper.Object, reserveRequestClientMock.Object, buyRequestClientMock.Object);
             // Act
             var result = await plateService.GetPlatesAsync(1, "default");
             // Assert
@@ -52,7 +62,15 @@ namespace WebMVC.UnitTests
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(JsonConvert.SerializeObject(plates))
             });
-            var plateService = new PlateService(mockHttpClientWrapper.Object);
+            var reserveRequestClientMock = new Mock<IRequestClient<ReservePlateMessage>>();
+            reserveRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<ReservePlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true })));
+
+            var buyRequestClientMock = new Mock<IRequestClient<BuyPlateMessage>>();
+            buyRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<BuyPlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true })));
+
+            var plateService = new PlateService(mockHttpClientWrapper.Object, reserveRequestClientMock.Object, buyRequestClientMock.Object);
             // Act
             var result = await plateService.GetPlatesAsync(1, "default");
             // Assert
@@ -76,7 +94,15 @@ namespace WebMVC.UnitTests
                 StatusCode = HttpStatusCode.OK,
                 Content = new StringContent(JsonConvert.SerializeObject(plates))
             });
-            var plateService = new PlateService(mockHttpClientWrapper.Object);
+            var reserveRequestClientMock = new Mock<IRequestClient<ReservePlateMessage>>();
+            reserveRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<ReservePlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true })));
+
+            var buyRequestClientMock = new Mock<IRequestClient<BuyPlateMessage>>();
+            buyRequestClientMock.Setup(x => x.GetResponse<ConsumerResponse>(It.IsAny<BuyPlateMessage>(), It.IsAny<CancellationToken>(), It.IsAny<RequestTimeout>()))
+                                                .Returns(Task.FromResult((Response<ConsumerResponse>)new ResponseFake(new ConsumerResponse() { Success = true })));
+
+            var plateService = new PlateService(mockHttpClientWrapper.Object, reserveRequestClientMock.Object, buyRequestClientMock.Object);
             // Act
             var result = await plateService.GetPlatesAsync(2, "default");
             // Assert

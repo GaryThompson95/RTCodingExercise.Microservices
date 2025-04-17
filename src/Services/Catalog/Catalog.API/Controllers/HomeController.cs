@@ -1,14 +1,19 @@
-﻿namespace Catalog.API.Controllers
+﻿using MassTransit;
+using Polly;
+
+namespace Catalog.API.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPublishEndpoint publishEndpoint)
         {
             _logger = logger;
             _context = context;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpPost("plate")]
@@ -35,7 +40,8 @@
                     p.Id,
                     p.Registration,
                     p.PurchasePrice,
-                    p.SalePrice
+                    p.SalePrice,
+                    p.Status
                 });
 
                 //Determine sort order
@@ -61,6 +67,67 @@
                 return Ok(plates);
             }
             catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        [HttpGet("plates/totalRevenue")]
+        public IActionResult GetTotalRevenue()
+        {
+            try
+            {
+                var totalRevenue = _context.Plates
+                  .Where(p => p.Status == PlateStatus.Sold)
+                  .Sum(p => p.SalePrice);
+
+                return Ok(totalRevenue);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        //Thought this would be an admin operation and thus didn't hook this up to the UI. 
+        //Would implement it in the UI with a User login system
+        [HttpPut("plate/unreserve")]
+        public IActionResult UnReservePlate(Guid plateId)
+        {
+            try
+            {
+                var plate = _context.Plates.Find(plateId);
+
+                if(plate == null)
+                {
+                    return NotFound("Plate not found");
+                }
+
+                if(plate.Status != PlateStatus.Reserved)
+                {
+                    return BadRequest("Plate is not reserved");
+                }
+
+                if(plate.Status == PlateStatus.Sold)
+                {
+                    return BadRequest("Plate is already sold");
+                }
+
+                plate.Status = PlateStatus.Available;
+                plate.ReservedBy = null;
+
+                _context.SaveChanges();
+
+                _publishEndpoint.Publish(new AuditMessage
+                {
+                    PlateIdReference = plateId,
+                    AuditAction = AuditAction.Reserve,
+                    Message = $"Plate unreserved successfully"
+                });
+
+                return Ok();
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex);
             }

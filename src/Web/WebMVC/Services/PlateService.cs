@@ -1,4 +1,5 @@
-﻿using WebMVC.Interfaces;
+﻿using MassTransit;
+using WebMVC.Interfaces;
 using WebMVC.Models;
 
 namespace WebMVC.Services
@@ -6,10 +7,14 @@ namespace WebMVC.Services
     public class PlateService
     {
         private readonly IHttpClientWrapper _httpClientWrapper;
+        private readonly IRequestClient<ReservePlateMessage> _reserveEndpoint;
+        private readonly IRequestClient<BuyPlateMessage> _buyEndpoint;
 
-        public PlateService(IHttpClientWrapper httpClientWrapper)
+        public PlateService(IHttpClientWrapper httpClientWrapper, IRequestClient<ReservePlateMessage> reserveEndpoint, IRequestClient<BuyPlateMessage> buyEndpoint)
         {
             _httpClientWrapper = httpClientWrapper;
+            _reserveEndpoint = reserveEndpoint;
+            _buyEndpoint = buyEndpoint;
         }
 
         public async Task<HomeViewModel> GetPlatesAsync(int page, string sortOrder)
@@ -37,6 +42,60 @@ namespace WebMVC.Services
                 };
             }
             catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ConsumerResponse> ReservePlateAsync(Guid plateId, string reservedBy)
+        {
+            try
+            {
+                var response = await _reserveEndpoint.GetResponse<ConsumerResponse>(new ReservePlateMessage
+                {
+                    PlateId = plateId,
+                    ReservedBy = reservedBy,
+                });
+
+                return response.Message;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<ConsumerResponse> BuyPlateAsync(Guid plateId, string buyerName)
+        {
+            try
+            {
+                var response = await _buyEndpoint.GetResponse<ConsumerResponse>(new BuyPlateMessage
+                {
+                    PlateId = plateId,
+                    BuyerName = buyerName,
+                });
+
+                return response.Message;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<decimal> GetTotalRevenue()
+        {
+            try
+            {
+                var response = await _httpClientWrapper.GetAsync("plates/totalRevenue");
+                response.EnsureSuccessStatusCode();
+                var resultString = await response.Content.ReadAsStringAsync();
+
+                var result = decimal.Parse(resultString);
+
+                return result;
+            }
+            catch (Exception ex)
             {
                 throw;
             }

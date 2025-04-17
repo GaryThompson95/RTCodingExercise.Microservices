@@ -18,7 +18,10 @@ namespace Catalog.API.Migrations
                     PurchasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     SalePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Letters = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Numbers = table.Column<int>(type: "int", nullable: false)
+                    Numbers = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    BoughtBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReservedBy = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

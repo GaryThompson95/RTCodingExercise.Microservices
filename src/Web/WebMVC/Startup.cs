@@ -23,9 +23,9 @@ namespace RTCodingExercise.WebMVC
 
             services.AddMassTransit(x =>
             {
-                //x.AddConsumer<ConsumerClass>();
-
                 //ADD CONSUMERS HERE
+                x.AddRequestClient<BuyPlateMessage>();
+                x.AddRequestClient<ReservePlateMessage>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(Configuration["EventBusConnection"], "/", h =>
@@ -54,7 +54,7 @@ namespace RTCodingExercise.WebMVC
             });
             services.AddSingleton<IHttpClientWrapper, HttpClientWrapper>();
 
-            services.AddSingleton<PlateService>();
+            services.AddScoped<PlateService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

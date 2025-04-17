@@ -9,24 +9,25 @@ namespace RTCodingExercise.Microservices.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly PlateService _plateService;
-        private static HomeViewModel viewModel;
+        private static HomeViewModel ViewModel;
 
         public HomeController(ILogger<HomeController> logger, PlateService plateService)
         {
             _logger = logger;
             _plateService = plateService;
+            ViewModel = new HomeViewModel();
         }
 
         public async Task<IActionResult> Index(int page = 1, string sortOrder = "default")
         {
             if (sortOrder == "continue")
             {
-                sortOrder = viewModel.SortOrder;
+                sortOrder = ViewModel.SortOrder;
             }
             else if(sortOrder != "default")
             {
                 //Param sort order will act like a switch, if current desc or default set to asc
-                if (viewModel.SortOrder == "price_desc" || viewModel.SortOrder == "default")
+                if (ViewModel.SortOrder == "price_desc" || ViewModel.SortOrder == "default")
                 {
                     sortOrder = "price_asc";
                 }
@@ -35,9 +36,13 @@ namespace RTCodingExercise.Microservices.Controllers
                     sortOrder = "price_desc";
                 }
             }
-            
-            viewModel = await _plateService.GetPlatesAsync(page, sortOrder);
-            return View(viewModel);
+
+            ViewModel = await _plateService.GetPlatesAsync(page, sortOrder);
+
+            var currentTotalRevenue = await _plateService.GetTotalRevenue();
+            ViewModel.TotalRevenue = currentTotalRevenue;
+
+            return View(ViewModel);
         }
 
         [HttpPost]
@@ -96,6 +101,36 @@ namespace RTCodingExercise.Microservices.Controllers
             TempData["Message"] = "Plate saved successfully!";
             return RedirectToAction("Index");
             
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Reserve(Guid id, string reservedBy)
+        {
+            var response = await _plateService.ReservePlateAsync(id, reservedBy);
+            if(response.Success)
+            {
+                TempData["Message"] = "Plate reserved successfully!";
+            }
+            else
+            {
+                TempData["Message"] = response.Message;
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Buy(Guid id, string boughtBy)
+        {
+            var response = await _plateService.BuyPlateAsync(id, boughtBy);
+            if (response.Success)
+            {
+                TempData["Message"] = "Plate bought successfully!";
+            }
+            else
+            {
+                TempData["Message"] = response.Message;
+            }
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()
