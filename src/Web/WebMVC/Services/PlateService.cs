@@ -17,11 +17,11 @@ namespace WebMVC.Services
             _buyEndpoint = buyEndpoint;
         }
 
-        public async Task<HomeViewModel> GetPlatesAsync(int page, string sortOrder)
+        public async Task<HomeViewModel> GetPlatesAsync(int page, string sortOrder, bool onlyForSale)
         {
             try
             {
-                var response = await _httpClientWrapper.GetAsync($"plates?page={page}&sort_order={sortOrder}");
+                var response = await _httpClientWrapper.GetAsync($"plates?page={page}&sort_order={sortOrder}&only_for_sale={onlyForSale}");
                 response.EnsureSuccessStatusCode();
 
                 var foundPlates = await response.Content.ReadFromJsonAsync<IEnumerable<Plate>>();
@@ -38,7 +38,8 @@ namespace WebMVC.Services
                     Plates = foundPlates,
                     HasNext = hasNext,
                     CurrentPage = page,
-                    SortOrder = sortOrder
+                    SortOrder = sortOrder,
+                    OnlyShowForSale = onlyForSale
                 };
             }
             catch(Exception ex)

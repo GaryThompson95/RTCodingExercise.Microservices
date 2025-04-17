@@ -18,7 +18,7 @@ namespace RTCodingExercise.Microservices.Controllers
             ViewModel = new HomeViewModel();
         }
 
-        public async Task<IActionResult> Index(int page = 1, string sortOrder = "default")
+        public async Task<IActionResult> Index(int page = 1, string sortOrder = "default", bool onlyShowForSale = false)
         {
             if (sortOrder == "continue")
             {
@@ -37,7 +37,7 @@ namespace RTCodingExercise.Microservices.Controllers
                 }
             }
 
-            ViewModel = await _plateService.GetPlatesAsync(page, sortOrder);
+            ViewModel = await _plateService.GetPlatesAsync(page, sortOrder, onlyShowForSale);
 
             var currentTotalRevenue = await _plateService.GetTotalRevenue();
             ViewModel.TotalRevenue = currentTotalRevenue;

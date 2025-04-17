@@ -24,7 +24,13 @@
             <h2>Current Total Revenue: £@Model.TotalRevenue</h2>
             <!-- Button to trigger modal popup for adding new data -->
             <button type="button" style="margin-bottom: 20px;" class="btn btn-primary" data-toggle="modal" data-target="#addPlateModal">Add Plate</button>
-            <button type="button" style="margin-bottom: 20px;" class="btn btn-secondary" onclick="location.href='@Url.Action("Index", new { sortOrder = "default" })'">Reset Sorting</button>
+            <button type="button" style="margin-bottom: 20px;" class="btn btn-secondary" onclick="location.href='@Url.Action("Index", new { sortOrder = "default" })'">Reset Filtering</button>
+            <div>
+                <label for="onlySellablePlatesCheckbox">Only Show Available Plates:</label>
+                <input type="checkbox" id="myCheckbox" name="onlyShowForSale"
+                    onchange="window.location.href='@($"{Url.Action("Index")}?page=1&sortOrder={Model.SortOrder}&onlyShowForSale=")' + this.checked;"
+                    @(Model.OnlyShowForSale ? "checked=\"checked\"" : "") />
+            </div>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -72,11 +78,11 @@
         <div class="paging">
             @if (Model.CurrentPage > 1)
             {
-                <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1,  sortOrder = "continue" })">Previous</a>
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage - 1, sortOrder = "continue", onlyShowForSale = Model.OnlyShowForSale })">Previous</a>
             }
             @if (Model.HasNext)
             {
-                <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1, sortOrder = "continue" })">Next</a>
+                <a href="@Url.Action("Index", new { page = Model.CurrentPage + 1, sortOrder = "continue", onlyShowForSale = Model.OnlyShowForSale })">Next</a>
             }
         </div>
             <!-- Modal for entering new data -->
