@@ -31,7 +31,7 @@ namespace Catalog.API.Controllers
         }
 
         [HttpGet("plates")]
-        public IActionResult GetPlates(int page, string sort_order = "default")
+        public IActionResult GetPlates(int page, string sort_order = "default", bool only_for_sale = false)
         {
             try
             {
@@ -43,6 +43,11 @@ namespace Catalog.API.Controllers
                     p.SalePrice,
                     p.Status
                 });
+
+                if(only_for_sale)
+                {
+                    query = query.Where(p => p.Status == PlateStatus.Available);
+                }
 
                 //Determine sort order
                 switch (sort_order)
